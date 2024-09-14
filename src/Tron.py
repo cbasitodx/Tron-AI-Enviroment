@@ -1,5 +1,9 @@
 from typing import List
 
+from re import findall
+
+from .consts import *
+
 
 class Tron:
   def __init__(self, height: int, width: int):
@@ -7,8 +11,10 @@ class Tron:
     self.__height: int = height
     self.__width: int = width
 
-    # Game board
-    self.__board: List[List[int]] = [[0]*width]*height
+    # Game board. 0 means empty, 1 means player 1, 2 means player 2
+    self.__board: List[List[int]] = [[0] * width] * height
+    self.__board[0][0] = PLAYER_1
+    self.__board[width - 1][height - 1] = PLAYER_2
 
     # Players current position (they are indices in self.board)
     self.__p1_pos: tuple = (0, 0)
@@ -29,7 +35,6 @@ class Tron:
         (new_position[0] < 0 or new_position[0] >= self.__width) or
         (new_position[1] < 0 or new_position[1] >= self.__height)
     ):
-
       # If an illegal move is attempted, then end the game
       self.__game_over = True
       return False
@@ -55,3 +60,27 @@ class Tron:
     #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
     #   * REPETIR DESDE EL COMIENZO!
     pass
+
+
+def read_file(player: int) -> str:
+  """
+  Read the moves from the file of the player
+  """
+  if player == PLAYER_1:
+    with open(MOVES_1, "r") as file:
+      return file.read()
+
+  elif player == PLAYER_2:
+    with open(MOVES_2, "r") as file:
+      return file.read()
+
+  else:
+    raise ValueError("Invalid player number")
+
+
+def validate_move(move: str) -> bool:
+  """
+  Validate the move from the player.
+  Valid moves are: 1, 2, 3; representing left, up, right respectively
+  """
+  return len(findall(r"[1-3]", move)) == 1

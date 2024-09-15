@@ -3,6 +3,7 @@ from typing import List
 from re import findall
 
 from .consts import *
+from .player import Player
 
 
 class Tron:
@@ -42,9 +43,11 @@ class Tron:
     else:
       return True
 
-  def __collision_happened(self, new_position: tuple) -> bool:
-    # TODO: TIENE QUE REVISAR SI OCURRIO UNA COLISION Y TIENE JUGADOR MURIO (VIENDO EL TURNO)
-    pass
+  def __collision_happened(self, player_a: Player, player_b: Player) -> bool:
+    """
+    Check if a collision happened
+    """
+    raise NotImplementedError
 
   def play(self) -> None:
     # TODO: AQUI VA A ESTAR EL GAME LOOP (while not self.__game_over). TIENE QUE:
@@ -59,7 +62,7 @@ class Tron:
     #   * UNA VEZ HECHO, QUITARLE EL TURNO
     #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
     #   * REPETIR DESDE EL COMIENZO!
-    pass
+    raise NotImplementedError
 
 
 def read_file(player: int) -> str:

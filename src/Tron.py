@@ -66,19 +66,3 @@ class Tron:
     #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
     #   * REPETIR DESDE EL COMIENZO!
     raise NotImplementedError
-
-
-def read_file(player: int) -> str:
-  """
-  Read the moves from the file of the player
-  """
-  if player == PLAYER_1:
-    with open(MOVES_1, "r") as file:
-      return file.read()
-
-  elif player == PLAYER_2:
-    with open(MOVES_2, "r") as file:
-      return file.read()
-
-  else:
-    raise ValueError("Invalid player number")

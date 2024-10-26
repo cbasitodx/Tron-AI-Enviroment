@@ -31,17 +31,14 @@ class Tron:
     # Winner of the game
     self.__winner: int = 0  # When set to 0, this variables indicates that no one has won the game yet
 
-  def __is_valid_move(self, new_position: tuple) -> bool:
-    if (
-        (new_position[0] < 0 or new_position[0] >= self.__width) or
-        (new_position[1] < 0 or new_position[1] >= self.__height)
-    ):
-      # If an illegal move is attempted, then end the game
-      self.__game_over = True
+  def __is_valid_move(self, move: int) -> bool:
+    if not isinstance(move, int):
       return False
 
-    else:
+    if 1 <= move <= 4:
       return True
+
+    return False
 
   def __collision_happened(self, player_a: Player, player_b: Player) -> bool:
     """

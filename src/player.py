@@ -26,8 +26,15 @@ class Player:
       x = randint(1, size - 1)
       y = randint(0, x - 2)
 
-    else:
+    elif self.__number == PLAYER_2:
       y = randint(1, size - 1)
       x = randint(1, y - 2)
 
+    else:
+      raise InvalidPlayerNumberError(f"Invalid player number: {self.__number}")
+
     return x, y
+
+
+class InvalidPlayerNumberError(Exception):
+  pass

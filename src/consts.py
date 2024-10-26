@@ -7,3 +7,4 @@ MOVES_2 = "./moves/player_2.txt"
 MOVE_LEFT = 1
 MOVE_UP = 2
 MOVE_RIGHT = 3
+MOVE_DOWN = 4

@@ -19,12 +19,23 @@ class Tron:
 
     # Game board. 0 means empty, 1 means player 1, 2 means player 2
     self.__board: List[List[int]] = [[0] * size] * size
+    self.__add_wall_borders()
 
     # Flag for breaking the game loop
     self.__game_over: bool = False
 
     # Winner of the game
     self.__winner: int = 0  # When set to 0, this variables indicates that no one has won the game yet
+
+  def __add_wall_borders(self) -> None:
+    """
+    Add the wall borders to the board
+    """
+    for i in range(self.__size):
+      self.__board[0][i] = WALL
+      self.__board[self.__size - 1][i] = WALL
+      self.__board[i][0] = WALL
+      self.__board[i][self.__size - 1] = WALL
 
   def __is_valid_move(self, move: int) -> bool:
     if not isinstance(move, int):

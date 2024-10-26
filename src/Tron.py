@@ -1,29 +1,24 @@
 from typing import List
 
-from re import findall
-
 from .consts import *
 from .player import Player
 
 
 class Tron:
-  def __init__(self, height: int, width: int):
+  def __init__(self, size: int):
     # Dimensions of the board
-    self.__height: int = height
-    self.__width: int = width
+    self.__size: int = size
 
-    # Game board. 0 means empty, 1 means player 1, 2 means player 2
-    self.__board: List[List[int]] = [[0] * width] * height
-    self.__board[0][0] = PLAYER_1
-    self.__board[width - 1][height - 1] = PLAYER_2
-
-    # Players current position (they are indices in self.board)
-    self.__p1_pos: tuple = (0, 0)
-    self.__p2_pos: tuple = (width - 1, height - 1)
+    # Players
+    self.__player_1: Player = Player(PLAYER_1, size)
+    self.__player_2: Player = Player(PLAYER_2, size)
 
     # Players turns
     self.__is_p1_turn: bool = False
     self.__is_p2_turn: bool = False
+
+    # Game board. 0 means empty, 1 means player 1, 2 means player 2
+    self.__board: List[List[int]] = [[0] * size] * size
 
     # Flag for breaking the game loop
     self.__game_over: bool = False
@@ -76,11 +71,3 @@ def read_file(player: int) -> str:
 
   else:
     raise ValueError("Invalid player number")
-
-
-def validate_move(move: str) -> bool:
-  """
-  Validate the move from the player.
-  Valid moves are: 1, 2, 3; representing left, up, right respectively
-  """
-  return len(findall(r"[1-3]", move)) == 1

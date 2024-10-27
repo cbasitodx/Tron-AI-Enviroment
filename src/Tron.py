@@ -19,7 +19,8 @@ class Tron:
 
     # Game board. 0 means empty, 1 means player 1, 2 means player 2
     self.__board: List[List[int]] = [[0] * size] * size
-    self.__add_wall_borders()
+    self.__walls: list[tuple[int, int]] = []
+    self.__init_walls()
 
     # Flag for breaking the game loop
     self.__game_over: bool = False
@@ -27,11 +28,13 @@ class Tron:
     # Winner of the game
     self.__winner: int = 0  # When set to 0, this variables indicates that no one has won the game yet
 
-  def __add_wall_borders(self) -> None:
-    """
-    Add the wall borders to the board
-    """
+  def __init_walls(self) -> None:
     for i in range(self.__size):
+      self.__walls.append((0, i))
+      self.__walls.append((self.__size - 1, i))
+      self.__walls.append((i, 0))
+      self.__walls.append((i, self.__size - 1))
+
       self.__board[0][i] = WALL
       self.__board[self.__size - 1][i] = WALL
       self.__board[i][0] = WALL
@@ -46,11 +49,26 @@ class Tron:
 
     return False
 
-  def __collision_happened(self, player_a: Player, player_b: Player) -> bool:
+  def __collision_happened(self, player_1: Player, player_2: Player) -> int | None:
     """
     Check if a collision happened
+
+    :return: The type of collision that happened or None if no collision happened
+    :rtype: PLAYERS_COLLIDED | PLAYER_1_COLLIDED | PLAYER_2_COLLIDED | BOTH_WALLS | None
     """
-    raise NotImplementedError
+    if player_1.position[0] == player_2.position[0]:
+      return PLAYERS_COLLIDED
+
+    if player_1.position[0] in player_2.position or player_1.position[0] in self.__walls:
+      return PLAYER_1_COLLIDED
+
+    if player_2.position[0] in player_1.position or player_2.position[0] in self.__walls:
+      return PLAYER_2_COLLIDED
+
+    if player_1.position[0] in self.__walls and player_2.position[0] in self.__walls:
+      return BOTH_WALLS
+
+    return None
 
   def play(self) -> None:
     # TODO: AQUI VA A ESTAR EL GAME LOOP (while not self.__game_over). TIENE QUE:

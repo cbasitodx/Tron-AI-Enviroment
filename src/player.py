@@ -1,12 +1,12 @@
 from random import randint
 
-from .consts import PLAYER_1, PLAYER_2
+from .consts import PLAYER_1, PLAYER_2, N_STELLA
 
 
 class Player:
   def __init__(self, number: int, size: int):
     self.__number: int = number
-    self.__position: tuple[int, int] = self.__generate_initial_position(size)
+    self.__position: list[tuple[int, int]] = [self.__generate_initial_position(size)] + [None] * N_STELLA
     self.__previous_move: int = 0  # 0 means no previous move
 
   @property

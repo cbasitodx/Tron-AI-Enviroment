@@ -14,7 +14,7 @@ class Player:
     return self.__number
 
   @property
-  def position(self) -> tuple[int, int]:
+  def position(self) -> list[tuple[int, int]]:
     return self.__position
 
   @property
@@ -69,13 +69,13 @@ class Player:
     """
     # Use int() to avoid errors
     match self.__previous_move:
-      case int(MOVE_LEFT):
+      case 1:  # Move left
         return new_move == MOVE_RIGHT
-      case int(MOVE_RIGHT):
-        return new_move == MOVE_LEFT
-      case int(MOVE_UP):
+      case 2:  # Move up
         return new_move == MOVE_DOWN
-      case int(MOVE_DOWN):
+      case 3:  # Move right
+        return new_move == MOVE_LEFT
+      case 4:  # Move down
         return new_move == MOVE_UP
       case _:
         return False

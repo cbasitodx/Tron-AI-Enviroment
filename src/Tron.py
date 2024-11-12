@@ -2,6 +2,7 @@ from typing import List
 
 from .consts import *
 from .player import Player
+from .input import get_input
 
 
 class Tron:
@@ -12,10 +13,6 @@ class Tron:
     # Players
     self.__player_1: Player = Player(PLAYER_1, size)
     self.__player_2: Player = Player(PLAYER_2, size)
-
-    # Players turns
-    self.__is_p1_turn: bool = False
-    self.__is_p2_turn: bool = False
 
     # Game board. 0 means empty, 1 means player 1, 2 means player 2
     self.__board: List[List[int]] = [[0] * size] * size
@@ -83,4 +80,13 @@ class Tron:
     #   * UNA VEZ HECHO, QUITARLE EL TURNO
     #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
     #   * REPETIR DESDE EL COMIENZO!
-    raise NotImplementedError
+    while not self.__game_over:
+      # Get the first player's move
+      move_1 = get_input(self.__player_1.number)
+      if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
+        move_1 = self.__player_1.previous_move
+
+      # Get the second player's move
+      move_2 = get_input(self.__player_2.number)
+      if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
+        move_2 = self.__player_2.previous_move

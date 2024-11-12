@@ -1,6 +1,6 @@
 from random import randint
 
-from .consts import PLAYER_1, PLAYER_2, N_STELLA
+from .consts import PLAYER_1, PLAYER_2, N_STELLA, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, MOVE_UP
 
 
 class Player:
@@ -59,6 +59,26 @@ class Player:
       raise InvalidPlayerNumberError(f"Invalid player number: {self.__number}")
 
     return x, y
+
+  def player_suicided(self, new_move: int) -> bool:
+    """
+    Check if the player suicided
+
+    :return: True if the player suicided, False otherwise
+    :rtype: bool
+    """
+    # Use int() to avoid errors
+    match self.__previous_move:
+      case int(MOVE_LEFT):
+        return new_move == MOVE_RIGHT
+      case int(MOVE_RIGHT):
+        return new_move == MOVE_LEFT
+      case int(MOVE_UP):
+        return new_move == MOVE_DOWN
+      case int(MOVE_DOWN):
+        return new_move == MOVE_UP
+      case _:
+        return False
 
 
 class InvalidPlayerNumberError(Exception):

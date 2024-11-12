@@ -1,4 +1,4 @@
-def get_input(player: int) -> int:
+async def get_input(player: int) -> int:
   """
   Get the input from the player
   """

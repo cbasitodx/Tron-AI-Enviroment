@@ -1,4 +1,5 @@
 from typing import List
+import asyncio
 
 from .consts import *
 from .player import Player
@@ -67,7 +68,7 @@ class Tron:
 
     return None
 
-  def play(self) -> None:
+  async def play(self) -> None:
     # TODO: AQUI VA A ESTAR EL GAME LOOP (while not self.__game_over). TIENE QUE:
     #   * ASIGNAR UN TURNO
     #   * ESPERAR POR ESE FICHERO (AQUI HACER FUNCIONES AUXILIARES)
@@ -81,12 +82,10 @@ class Tron:
     #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
     #   * REPETIR DESDE EL COMIENZO!
     while not self.__game_over:
-      # Get the first player's move
-      move_1 = get_input(self.__player_1.number)
+      # Get the moves from the players
+      move_1, move_2 = await asyncio.gather(get_input(self.__player_1.id), get_input(self.__player_2.id))
       if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
         move_1 = self.__player_1.previous_move
 
-      # Get the second player's move
-      move_2 = get_input(self.__player_2.number)
       if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
         move_2 = self.__player_2.previous_move

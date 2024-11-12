@@ -4,6 +4,7 @@ import asyncio
 from .consts import *
 from .player import Player
 from .input import get_input
+from .board import update_board
 
 
 class Tron:
@@ -24,7 +25,7 @@ class Tron:
     self.__game_over: bool = False
 
     # Winner of the game
-    self.__winner: int = 0  # When set to 0, this variables indicates that no one has won the game yet
+    self.__winner: Player | None = None
 
   def __init_walls(self) -> None:
     for i in range(self.__size):
@@ -47,21 +48,21 @@ class Tron:
 
     return False
 
-  def __collision_happened(self, player_1: Player, player_2: Player) -> int | None:
+  def __get_collision(self, player_1: Player, player_2: Player) -> Player | int | None:
     """
     Check if a collision happened
 
     :return: The type of collision that happened or None if no collision happened
-    :rtype: PLAYERS_COLLIDED | PLAYER_1_COLLIDED | PLAYER_2_COLLIDED | BOTH_WALLS | None
+    :rtype: Player | PLAYERS_COLLIDED | BOTH_WALLS | None
     """
     if player_1.position[0] == player_2.position[0]:
       return PLAYERS_COLLIDED
 
     if player_1.position[0] in player_2.position or player_1.position[0] in self.__walls:
-      return PLAYER_1_COLLIDED
+      return player_2
 
     if player_2.position[0] in player_1.position or player_2.position[0] in self.__walls:
-      return PLAYER_2_COLLIDED
+      return player_1
 
     if player_1.position[0] in self.__walls and player_2.position[0] in self.__walls:
       return BOTH_WALLS
@@ -69,18 +70,6 @@ class Tron:
     return None
 
   async def play(self) -> None:
-    # TODO: AQUI VA A ESTAR EL GAME LOOP (while not self.__game_over). TIENE QUE:
-    #   * ASIGNAR UN TURNO
-    #   * ESPERAR POR ESE FICHERO (AQUI HACER FUNCIONES AUXILIARES)
-    #   * UNA VEZ TENGA EL MOVIMIENTO EN EL FICHERO, LEERLO
-    #   * COMPROBAR SI ES VALIDO
-    #   * COMPROBAR SI HUBO COLISION
-    #   * SI LAS DOS ANTERIORES NO OCURREN, HACER EL MOVIMIENTO (ACTUALIZAR EL BOARD)
-    #   * QUITAR TURNO Y ASIGNAR TURNO CONTRARIO
-    #   * REPETIR PROCESO CON EL OTRO JUGADOR
-    #   * UNA VEZ HECHO, QUITARLE EL TURNO
-    #   * ESCRIBIR EL NUEVO TABLERO EN EL FICHERO
-    #   * REPETIR DESDE EL COMIENZO!
     while not self.__game_over:
       # Get the moves from the players
       move_1, move_2 = await asyncio.gather(get_input(self.__player_1.id), get_input(self.__player_2.id))
@@ -89,3 +78,29 @@ class Tron:
 
       if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
         move_2 = self.__player_2.previous_move
+
+      # Check if a collision happened
+      collision = self.__get_collision(self.__player_1, self.__player_2)
+
+      if collision is not None:
+        if isinstance(collision, int):
+          self.__game_over = True
+          self.__winner = None
+          continue
+
+        self.__game_over = True
+        self.__winner = collision
+        continue
+
+      # Update players's positions
+      self.__player_1.move(move_1)
+      self.__player_2.move(move_2)
+
+      # Update the board
+      update_board()
+
+    if self.__winner is None:
+      print("It's a tie!")
+      print("Restarting the game...")
+    else:
+      print(f"Player {self.__winner.id} won!")

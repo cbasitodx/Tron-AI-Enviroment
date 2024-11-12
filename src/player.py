@@ -48,12 +48,12 @@ class Player:
     :rtype: tuple[int, int]
     """
     if self.__number == PLAYER_1:
-      x = randint(1, size - 3)
-      y = randint(0, x - 2)
+      x = randint(2, size - 3)
+      y = randint(1, x - 1)
 
     elif self.__number == PLAYER_2:
-      y = randint(1, size - 3)
-      x = randint(1, y - 2)
+      y = randint(2, size - 3)
+      x = randint(1, y - 1)
 
     else:
       raise InvalidPlayerNumberError(f"Invalid player number: {self.__number}")

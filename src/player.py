@@ -14,12 +14,15 @@ class Player:
     return self.__number
 
   @property
+  def previous_move(self) -> int:
+    return self.__previous_move
+
+  @property
   def position(self) -> list[tuple[int, int]]:
     return self.__position
 
-  @property
-  def previous_move(self) -> int:
-    return self.__previous_move
+  def move(self, new_position: tuple[int, int]) -> None:
+    self.__position = [new_position] + self.__position[:-1]
 
   def __generate_initial_position(self, size: int) -> tuple[int, int]:
     """

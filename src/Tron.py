@@ -140,6 +140,10 @@ class Tron:
       # Get and validate moves
       move_1, move_2 = await self.__get_moves()
 
+      # Get the last position of the players to remove them from the matrix
+      last_pos_1 = self.__player_1.position[-1]
+      last_pos_2 = self.__player_2.position[-1]
+
       # Move the players
       self.__move_player(self.__player_1, move_1)
       self.__move_player(self.__player_2, move_2)
@@ -148,10 +152,6 @@ class Tron:
       end_message = self.__handle_collisions()
       if self.__game_over:
         break
-
-      # Get the last position of the players to remove them from the matrix
-      last_pos_1 = self.__player_1.position[-1]
-      last_pos_2 = self.__player_2.position[-1]
 
       # Update the matrix
       self.__update_board(last_pos_1, last_pos_2)

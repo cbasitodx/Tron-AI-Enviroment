@@ -21,8 +21,9 @@ class Player:
   def position(self) -> list[tuple[int, int]]:
     return self.__position
 
-  def move(self, new_position: tuple[int, int]) -> None:
+  def move(self, new_position: tuple[int, int], move: int) -> None:
     self.__position = [new_position] + self.__position[:-1]
+    self.__previous_move = move
 
   def __generate_initial_position(self, size: int) -> tuple[int, int]:
     """

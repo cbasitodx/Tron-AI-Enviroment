@@ -51,6 +51,29 @@ class Tron:
 
     return False
 
+  async def __get_moves(self) -> tuple[tuple[int, int], tuple[int, int]]:
+    move_1, move_2 = await asyncio.gather(get_input(self.__player_1.number), get_input(self.__player_2.number))
+    if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
+      move_1 = self.__player_1.previous_move
+
+    if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
+      move_2 = self.__player_2.previous_move
+
+    return move_1, move_2
+
+  def __get_new_position(self, player: Player, move: int) -> tuple[int, int]:
+    match move:
+      case 1:  # Move left
+        new_pos = (player.position[0][0], player.position[0][1] - 1)
+      case 2:  # Move up
+        new_pos = (player.position[0][0] - 1, player.position[0][1])
+      case 3:  # Move right
+        new_pos = (player.position[0][0], player.position[0][1] + 1)
+      case 4:  # Move down
+        new_pos = (player.position[0][0] + 1, player.position[0][1])
+
+    return new_pos
+
   def __get_collision(self, player_1: Player, player_2: Player) -> int | None:
     """
     Check if a collision happened
@@ -58,7 +81,9 @@ class Tron:
     :return: The type of collision that happened or None if no collision happened
     :rtype: Player | PLAYERS_COLLIDED | BOTH_WALLS | None
     """
-    if player_1.position[0] == player_2.position[0]:
+    # Check if the players collided into each other diagonally or head-on
+    if player_1.position[0] == player_2.position[0] or \
+            (player_1.position[1] == player_2.position[0] and player_1.position[0] == player_2.position[1]):
       return PLAYERS_COLLIDED
 
     if player_1.position[0] in player_2.position or player_1.position[0] in self.__walls:
@@ -72,15 +97,9 @@ class Tron:
 
     return None
 
-  async def __get_moves(self) -> tuple[tuple[int, int], tuple[int, int]]:
-    move_1, move_2 = await asyncio.gather(get_input(self.__player_1.number), get_input(self.__player_2.number))
-    if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
-      move_1 = self.__player_1.previous_move
-
-    if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
-      move_2 = self.__player_2.previous_move
-
-    return move_1, move_2
+  def __move_player(self, player: Player, move: int) -> None:
+    new_pos = self.__get_new_position(player, move)
+    player.move(new_pos, move)
 
   def __handle_collisions(self) -> str | None:
     collision = self.__get_collision(self.__player_1, self.__player_2)
@@ -102,19 +121,6 @@ class Tron:
 
     return end_message
 
-  def __move_player(self, player: Player, move: int) -> None:
-    match move:
-      case 1:  # Move left
-        new_pos = (player.position[0][0], player.position[0][1] - 1)
-      case 2:  # Move up
-        new_pos = (player.position[0][0] + 1, player.position[0][1])
-      case 3:  # Move right
-        new_pos = (player.position[0][0], player.position[0][1] + 1)
-      case 4:  # Move down
-        new_pos = (player.position[0][0] - 1, player.position[0][1])
-
-    player.move(new_pos)
-
   def __update_board(self, last_pos_1: tuple[int, int] | None, last_pos_2: tuple[int, int] | None) -> None:
     for pos_1, pos_2 in zip(self.__player_1.position, self.__player_2.position):
       if pos_1 is None or pos_2 is None:
@@ -131,10 +137,14 @@ class Tron:
     self.print_board()
     end_message = ""
     while not self.__game_over:
-      # Get the moves from the players
+      # Get and validate moves
       move_1, move_2 = await self.__get_moves()
 
-      # Check if a collision happened
+      # Move the players
+      self.__move_player(self.__player_1, move_1)
+      self.__move_player(self.__player_2, move_2)
+
+      # Check for collisions
       end_message = self.__handle_collisions()
       if self.__game_over:
         break
@@ -142,10 +152,6 @@ class Tron:
       # Get the last position of the players to remove them from the matrix
       last_pos_1 = self.__player_1.position[-1]
       last_pos_2 = self.__player_2.position[-1]
-
-      # Move the players
-      self.__move_player(self.__player_1, move_1)
-      self.__move_player(self.__player_2, move_2)
 
       # Update the matrix
       self.__update_board(last_pos_1, last_pos_2)

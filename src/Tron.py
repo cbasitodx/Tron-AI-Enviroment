@@ -1,10 +1,8 @@
-from typing import List
 import asyncio
 
-from .consts import *
-from .player import Player
-from .input import get_input
-from .board import update_board
+from src.consts import *
+from src.player import Player
+from src.input import get_input
 
 
 class Tron:
@@ -17,7 +15,7 @@ class Tron:
     self.__player_2: Player = Player(PLAYER_2, size)
 
     # Game board. 0 means empty, 1 means player 1, 2 means player 2
-    self.__board: List[List[int]] = [[0] * size] * size
+    self.__board: list[list[int]] = [[0] * size for _ in range(size)]
     self.__walls: list[tuple[int, int]] = []
     self.__init_walls()
 
@@ -28,6 +26,7 @@ class Tron:
     self.__winner: Player | None = None
 
   def __init_walls(self) -> None:
+    n = self.__size - 1
     for i in range(self.__size):
       self.__walls.append((0, i))
       self.__walls.append((self.__size - 1, i))
@@ -35,9 +34,9 @@ class Tron:
       self.__walls.append((i, self.__size - 1))
 
       self.__board[0][i] = WALL
-      self.__board[self.__size - 1][i] = WALL
+      self.__board[n][i] = WALL
       self.__board[i][0] = WALL
-      self.__board[i][self.__size - 1] = WALL
+      self.__board[i][n] = WALL
 
   def __is_valid_move(self, move: int) -> bool:
     if not isinstance(move, int):
@@ -48,7 +47,7 @@ class Tron:
 
     return False
 
-  def __get_collision(self, player_1: Player, player_2: Player) -> Player | int | None:
+  def __get_collision(self, player_1: Player, player_2: Player) -> int | None:
     """
     Check if a collision happened
 
@@ -69,38 +68,93 @@ class Tron:
 
     return None
 
+  async def __get_moves(self) -> tuple[tuple[int, int], tuple[int, int]]:
+    move_1, move_2 = await asyncio.gather(get_input(self.__player_1.number), get_input(self.__player_2.number))
+    if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
+      move_1 = self.__player_1.previous_move
+
+    if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
+      move_2 = self.__player_2.previous_move
+
+    return move_1, move_2
+
+  def __handle_collisions(self) -> str | None:
+    collision = self.__get_collision(self.__player_1, self.__player_2)
+
+    end_message = None
+
+    if collision is not None:
+      if collision == PLAYERS_COLLIDED:
+        self.__winner = None
+        end_message = "Both players collided into each other"
+      elif collision == BOTH_WALLS:
+        self.__winner = None
+        end_message = "Both players collided into a wall"
+      else:
+        self.__winner = collision
+        end_message = f"Player {collision.number} wins!"
+
+      self.__game_over = True
+
+    return end_message
+
+  def __move_player(self, player: Player, move: int) -> None:
+    match move:
+      case 1:  # Move left
+        new_pos = (player.position[0][0], player.position[0][1] - 1)
+      case 2:  # Move up
+        new_pos = (player.position[0][0] + 1, player.position[0][1])
+      case 3:  # Move right
+        new_pos = (player.position[0][0], player.position[0][1] + 1)
+      case 4:  # Move down
+        new_pos = (player.position[0][0] - 1, player.position[0][1])
+
+    player.move(new_pos)
+
+  def __update_board(self, last_pos_1: tuple[int, int] | None, last_pos_2: tuple[int, int] | None) -> None:
+    for pos_1, pos_2 in zip(self.__player_1.position, self.__player_2.position):
+      if pos_1 is None or pos_2 is None:
+        break
+      self.__board[pos_1[0]][pos_1[1]] = PLAYER_1
+      self.__board[pos_2[0]][pos_2[1]] = PLAYER_2
+
+      if last_pos_1 is None or last_pos_2 is None:
+        break
+      self.__board[last_pos_1[0]][last_pos_1[1]] = 0
+      self.__board[last_pos_2[0]][last_pos_2[1]] = 0
+
   async def play(self) -> None:
+    end_message = ""
     while not self.__game_over:
       # Get the moves from the players
-      move_1, move_2 = await asyncio.gather(get_input(self.__player_1.id), get_input(self.__player_2.id))
-      if not self.__is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
-        move_1 = self.__player_1.previous_move
-
-      if not self.__is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
-        move_2 = self.__player_2.previous_move
+      move_1, move_2 = await self.__get_moves()
 
       # Check if a collision happened
-      collision = self.__get_collision(self.__player_1, self.__player_2)
+      end_message = self.__handle_collisions()
+      if self.__game_over:
+        break
 
-      if collision is not None:
-        if isinstance(collision, int):
-          self.__game_over = True
-          self.__winner = None
-          continue
+      # Get the last position of the players to remove them from the matrix
+      last_pos_1 = self.__player_1.position[-1]
+      last_pos_2 = self.__player_2.position[-1]
 
-        self.__game_over = True
-        self.__winner = collision
-        continue
+      # Move the players
+      self.__move_player(self.__player_1, move_1)
+      self.__move_player(self.__player_2, move_2)
 
-      # Update players's positions
-      self.__player_1.move(move_1)
-      self.__player_2.move(move_2)
+      # Update the matrix
+      self.__update_board(last_pos_1, last_pos_2)
 
-      # Update the board
-      update_board()
+      # Print the matrix
+      self.print_board()
 
-    if self.__winner is None:
-      print("It's a tie!")
-      print("Restarting the game...")
-    else:
-      print(f"Player {self.__winner.id} won!")
+    print(end_message)
+
+  def print_board(self) -> None:
+    for row in self.__board:
+      print(" ".join(str(cell) for cell in row))
+
+
+if __name__ == "__main__":
+  tron = Tron(5)
+  asyncio.run(tron.play())

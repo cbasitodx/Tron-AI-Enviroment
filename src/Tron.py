@@ -16,8 +16,12 @@ class Tron:
 
     # Game board. 0 means empty, 1 means player 1, 2 means player 2
     self.__board: list[list[int]] = [[0] * size for _ in range(size)]
-    self.__walls: list[tuple[int, int]] = []
+    self.__walls: set[tuple[int, int]] = set()
     self.__init_walls()
+
+    # Add the initial positions of the players to the board
+    self.__board[self.__player_1.position[0][0]][self.__player_1.position[0][1]] = PLAYER_1
+    self.__board[self.__player_2.position[0][0]][self.__player_2.position[0][1]] = PLAYER_2
 
     # Flag for breaking the game loop
     self.__game_over: bool = False
@@ -28,10 +32,10 @@ class Tron:
   def __init_walls(self) -> None:
     n = self.__size - 1
     for i in range(self.__size):
-      self.__walls.append((0, i))
-      self.__walls.append((self.__size - 1, i))
-      self.__walls.append((i, 0))
-      self.__walls.append((i, self.__size - 1))
+      self.__walls.add((0, i))
+      self.__walls.add((self.__size - 1, i))
+      self.__walls.add((i, 0))
+      self.__walls.add((i, self.__size - 1))
 
       self.__board[0][i] = WALL
       self.__board[n][i] = WALL
@@ -124,6 +128,7 @@ class Tron:
       self.__board[last_pos_2[0]][last_pos_2[1]] = 0
 
   async def play(self) -> None:
+    self.print_board()
     end_message = ""
     while not self.__game_over:
       # Get the moves from the players
@@ -156,5 +161,5 @@ class Tron:
 
 
 if __name__ == "__main__":
-  tron = Tron(5)
+  tron = Tron(7)
   asyncio.run(tron.play())

@@ -44,6 +44,10 @@ class Board:
       self.__board[last_pos_1[0]][last_pos_1[1]] = 0
       self.__board[last_pos_2[0]][last_pos_2[1]] = 0
 
+  @property
+  def walls(self) -> set[tuple[int, int]]:
+    return self.__walls
+
   def __str__(self) -> str:
     res = ""
     for row in self.__board:

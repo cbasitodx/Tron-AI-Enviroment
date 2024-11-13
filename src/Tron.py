@@ -14,10 +14,6 @@ class Tron:
 
     self.__board = Board(size, self.__player_1, self.__player_2)
 
-    # Add the initial positions of the players to the board
-    self.__board[self.__player_1.position[0][0]][self.__player_1.position[0][1]] = PLAYER_1
-    self.__board[self.__player_2.position[0][0]][self.__player_2.position[0][1]] = PLAYER_2
-
     # Flag for breaking the game loop
     self.__game_over: bool = False
 
@@ -46,13 +42,13 @@ class Tron:
             (player_1.position[1] == player_2.position[0] and player_1.position[0] == player_2.position[1]):
       return PLAYERS_COLLIDED
 
-    if player_1.position[0] in self.__walls and player_2.position[0] in self.__walls:
+    if player_1.position[0] in self.__board.walls and player_2.position[0] in self.__board.walls:
       return BOTH_WALLS
 
-    if player_1.position[0] in player_2.position or player_1.position[0] in self.__walls:
+    if player_1.position[0] in player_2.position or player_1.position[0] in self.__board.walls:
       return player_2
 
-    if player_2.position[0] in player_1.position or player_2.position[0] in self.__walls:
+    if player_2.position[0] in player_1.position or player_2.position[0] in self.__board.walls:
       return player_1
 
     return None
@@ -78,7 +74,7 @@ class Tron:
     return end_message
 
   async def play(self) -> None:
-    self.print_board()
+    print(self.__board)
     end_message = ""
     while not self.__game_over:
       # Get and validate moves
@@ -101,13 +97,9 @@ class Tron:
       self.__board.update_board(last_pos_1, last_pos_2)
 
       # Print the matrix
-      self.print_board()
+      print(self.__board)
 
     print(end_message)
-
-  def print_board(self) -> None:
-    for row in self.__board:
-      print(" ".join(str(cell) for cell in row))
 
 
 if __name__ == "__main__":

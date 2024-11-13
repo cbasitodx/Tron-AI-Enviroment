@@ -2,4 +2,4 @@ async def get_input(player: int) -> int:
   """
   Get the input from the player
   """
-  pass
+  return int(input(f"Player {player} move: "))

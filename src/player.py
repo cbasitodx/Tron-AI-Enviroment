@@ -30,6 +30,7 @@ class Player:
 
     The board looks like this:
 
+          0   1   2  ... n-1 n-2
         +---+---+---+---+---+---+
      0  | # | # | # |...| # | # |
         +---+---+---+---+---+---+
@@ -43,7 +44,6 @@ class Player:
         +---+---+---+---+---+---+
     n-1 | # | # | # |...| # | # |
         +---+---+---+---+---+---+
-          0   1   2  ... n-1 n-2
 
     :param size: The size of the board
     :type size: int
@@ -51,17 +51,17 @@ class Player:
     :rtype: tuple[int, int]
     """
     if self.__number == PLAYER_1:
-      x = randint(2, size - 3)
-      y = randint(1, x - 1)
+      col = randint(2, size - 2)
+      row = randint(1, col - 1)
 
     elif self.__number == PLAYER_2:
-      y = randint(2, size - 3)
-      x = randint(1, y - 1)
+      row = randint(2, size - 2)
+      col = randint(1, row - 1)
 
     else:
       raise InvalidPlayerNumberError(f"Invalid player number: {self.__number}")
 
-    return x, y
+    return row, col
 
   def player_suicided(self, new_move: int) -> bool:
     """

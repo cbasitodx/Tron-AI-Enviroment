@@ -86,14 +86,14 @@ class Tron:
             (player_1.position[1] == player_2.position[0] and player_1.position[0] == player_2.position[1]):
       return PLAYERS_COLLIDED
 
+    if player_1.position[0] in self.__walls and player_2.position[0] in self.__walls:
+      return BOTH_WALLS
+
     if player_1.position[0] in player_2.position or player_1.position[0] in self.__walls:
       return player_2
 
     if player_2.position[0] in player_1.position or player_2.position[0] in self.__walls:
       return player_1
-
-    if player_1.position[0] in self.__walls and player_2.position[0] in self.__walls:
-      return BOTH_WALLS
 
     return None
 

@@ -12,6 +12,7 @@ class Tron:
         self.__player_1: Player = Player(PLAYER_1, size)
         self.__player_2: Player = Player(PLAYER_2, size)
 
+        self.__size = size
         self.__board = Board(size, self.__player_1, self.__player_2)
 
         # Flag for breaking the game loop
@@ -20,13 +21,37 @@ class Tron:
         # Winner of the game
         self.__winner: Player | None = None
 
-    async def __get_moves(self) -> tuple[tuple[int, int], tuple[int, int]]:
-        move_1, move_2 = await asyncio.gather(get_input(self.__player_1.number), get_input(self.__player_2.number))
-        if not Move.is_valid_move(move_1) or self.__player_1.player_suicided(move_1):
-            move_1 = self.__player_1.previous_move
+    @property
+    def player_1(self) -> Player:
+        return self.__player_1
 
-        if not Move.is_valid_move(move_2) or self.__player_2.player_suicided(move_2):
-            move_2 = self.__player_2.previous_move
+    @property
+    def player_2(self) -> Player:
+        return self.__player_2
+
+    @property
+    def size(self) -> int:
+        return self.__size
+
+    @property
+    def board(self) -> Board:
+        return self.__board
+
+    @property
+    def game_over(self) -> bool:
+        return self.__game_over
+
+    @property
+    def winner(self) -> Player | None:
+        return self.__winner
+
+    async def get_moves(self) -> tuple[tuple[int, int], tuple[int, int]]:
+        move_1, move_2 = await asyncio.gather(get_input(self.player_1.number), get_input(self.player_2.number))
+        if not Move.is_valid_move(move_1) or self.player_1.player_suicided(move_1):
+            move_1 = self.player_1.previous_move
+
+        if not Move.is_valid_move(move_2) or self.player_2.player_suicided(move_2):
+            move_2 = self.player_2.previous_move
 
         return move_1, move_2
 
@@ -42,19 +67,19 @@ class Tron:
                 (player_1.position[1] == player_2.position[0] and player_1.position[0] == player_2.position[1]):
             return PLAYERS_COLLIDED
 
-        if player_1.position[0] in self.__board.walls and player_2.position[0] in self.__board.walls:
+        if player_1.position[0] in self.board.walls and player_2.position[0] in self.board.walls:
             return BOTH_WALLS
 
-        if player_1.position[0] in player_2.position or player_1.position[0] in self.__board.walls:
+        if player_1.position[0] in player_2.position or player_1.position[0] in self.board.walls:
             return player_2
 
-        if player_2.position[0] in player_1.position or player_2.position[0] in self.__board.walls:
+        if player_2.position[0] in player_1.position or player_2.position[0] in self.board.walls:
             return player_1
 
         return None
 
-    def __handle_collisions(self) -> str | None:
-        collision = self.__get_collision(self.__player_1, self.__player_2)
+    def handle_collisions(self) -> str | None:
+        collision = self.__get_collision(self.player_1, self.player_2)
 
         end_message = None
 
@@ -72,36 +97,3 @@ class Tron:
             self.__game_over = True
 
         return end_message
-
-    async def play(self) -> None:
-        print(self.__board)
-        end_message = ""
-        while not self.__game_over:
-            # Get and validate moves
-            move_1, move_2 = await self.__get_moves()
-
-            # Get the last position of the players to remove them from the matrix
-            last_pos_1 = self.__player_1.position[-1]
-            last_pos_2 = self.__player_2.position[-1]
-
-            # Move the players
-            Move.move_player(self.__player_1, move_1)
-            Move.move_player(self.__player_2, move_2)
-
-            # Check for collisions
-            end_message = self.__handle_collisions()
-            if self.__game_over:
-                break
-
-            # Update the matrix
-            self.__board.update_board(last_pos_1, last_pos_2)
-
-            # Print the matrix
-            print(self.__board)
-
-        print(end_message)
-
-
-if __name__ == "__main__":
-    tron = Tron(7)
-    asyncio.run(tron.play())

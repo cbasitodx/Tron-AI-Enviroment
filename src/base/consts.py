@@ -1,7 +1,7 @@
 # Players
 PLAYER_1 = 1
 PLAYER_2 = 2
-N_STELLA = 2
+N_STELLA = 10
 
 # Walls
 WALL = 3

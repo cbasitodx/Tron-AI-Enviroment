@@ -73,13 +73,13 @@ class Player:
         """
         # Use int() to avoid errors
         match self.__previous_move:
-            case int(MOVE_LEFT):
+            case 1:  # MOVE_LEFT
                 return new_move == MOVE_RIGHT
-            case int(MOVE_UP):
+            case 2:  # MOVE_UP
                 return new_move == MOVE_DOWN
-            case int(MOVE_RIGHT):
+            case 3:  # MOVE_RIGHT
                 return new_move == MOVE_LEFT
-            case int(MOVE_DOWN):
+            case 4:  # MOVE_DOWN
                 return new_move == MOVE_UP
             case _:
                 return False

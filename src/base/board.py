@@ -1,5 +1,5 @@
-from src.player import Player
-from src.consts import PLAYER_1, PLAYER_2, WALL
+from .player import Player
+from .consts import PLAYER_1, PLAYER_2, WALL
 
 
 class Board:

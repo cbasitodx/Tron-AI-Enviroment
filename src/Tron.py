@@ -1,10 +1,10 @@
 import asyncio
 
-from src.consts import *
-from src.player import Player
-from src.input import get_input
-from src.move import Move
-from src.board import Board
+from base.consts import *
+from base.player import Player
+from base.input import get_input
+from base.move import Move
+from base.board import Board
 
 
 class Tron:

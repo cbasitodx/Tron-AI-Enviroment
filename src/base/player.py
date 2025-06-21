@@ -21,7 +21,43 @@ class Player:
     def position(self) -> list[tuple[int, int]]:
         return self.__position
 
-    def move(self, new_position: tuple[int, int], move: int) -> None:
+    def __get_new_position(self, move: int) -> tuple[int, int]:
+        """
+        Calculate the new position of the player based on the move
+        PRE: The move is valid (1 <= move <= 4)
+
+        :param move: The move to make
+        :type move: int
+
+        :return: The new position of the player
+        :rtype: tuple[int, int]
+        """
+        match move:
+            case 1:  # Move left
+                new_pos = (self.position[0][0], self.position[0][1] - 1)
+            case 2:  # Move up
+                new_pos = (self.position[0][0] - 1, self.position[0][1])
+            case 3:  # Move right
+                new_pos = (self.position[0][0], self.position[0][1] + 1)
+            case 4:  # Move down
+                new_pos = (self.position[0][0] + 1, self.position[0][1])
+
+        return new_pos
+
+    @staticmethod
+    def is_valid_move(move: int) -> bool:
+        if not isinstance(move, int):
+            return False
+
+        return 1 <= move <= 4
+
+    def move(self, move: int) -> None:
+        try:
+            new_position = self.__get_new_position(move)
+        except ValueError as e:
+            new_position = self.__get_new_position(self, self.__previous_move)
+            print(f"Invalid move {move} for player {self.__number}. Using previous move instead: {self.__previous_move}. Error: {e}")
+
         self.__position = [new_position] + self.__position[:-1]
         self.__previous_move = move
 

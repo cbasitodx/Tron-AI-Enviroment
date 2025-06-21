@@ -2,13 +2,13 @@ import pygame
 
 from frontend.consts import *
 
-from base.consts import PLAYER_1, PLAYER_2, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, MOVE_UP
+from base.consts import PLAYER_1, PLAYER_2
 from base.player import Player
-from Tron import Tron
+from GameState import GameState
 
 
 class Frontend:
-    def __init__(self, game: Tron, cell_size: int, caption: str = "Tron Game"):
+    def __init__(self, game: GameState, cell_size: int, caption: str = "Tron Game"):
         pygame.init()
         self.game = game
 
